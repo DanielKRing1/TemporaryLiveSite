@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html ng-app="beach">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Beach Hacks Live</title>
+
+    <!--Bootstrap-->
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+
+  <body ng-controller="LiveSiteController as site">
+
+    <div>
+            <!-- TAB NAVBAR -->
+            <section class="list-group-item">
+              <tab-nav></tab-nav>
+
+            </section>
+
+            <!-- TABS -->
+            <section class="list-group-item tab-container">
+              <!-- SCHEDULE -->
+              <schedule-tab></schedule-tab>
+
+              <!-- ANNOUNCEMENTS -->
+              <announcement-tab></announcement-tab>
+
+              <!-- Map -->
+              <maps-tab></maps-tab>
+
+              <!-- MENTORS -->
+              <mentors-tab></mentors-tab>
+              
+              <!-- SONGS -->
+              <songs-tab></songs-tab>
+
+            </section>
+
+            <!--MAP -->
+            <div ng-show="panel.isSelected(3)">
+
+
+            <!-- MENTORS -->
+            <div ng-show="panel.isSelected(4)">
+
+
+            <!-- HARDWARE -->
+            <div ng-show="panel.isSelected(5)">
+
+
+            <!-- SUBMIT -->
+            <div ng-show="panel.isSelected(6)">
+
+
+            <!-- SONGS -->
+            <div ng-show="panel.isSelected(7)">
+
+    </div>
+
+
+
+    <!-- Bootstrap -->
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <!-- AngularJS -->
+    <script type="text/javascript" src="js/angular.min.js"></script>
+    <!-- Firebase -->
+    <script type="text/javascript" src="js/firebase.js"></script>
+    <!-- AngularFire -->
+    <script type="text/javascript" src="js/angularfire.min.js"></script>
+    <!-- app.js -->
+    <script type="text/javascript" src="js/app.js"></script>
+  </body>
+</html>

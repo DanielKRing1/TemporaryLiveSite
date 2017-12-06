@@ -1,0 +1,21 @@
+<!-- TAB NAVBAR -->
+<div>
+  <ul class="tab-nav nav">
+    <li class="tab-nav-item" type="button" ng-click="panel.selectTab(1)">
+      <a class="tab-nav-link btn list-group-item" href ng-class="{'active': panel.tab === 1}">Schedule</a></li>
+    <li class="tab-nav-item" type="button" ng-click="panel.selectTab(2)">
+      <a class="tab-nav-link btn list-group-item" href ng-class="{'active': panel.tab === 2}">Announcements</a></li>
+    <li class="tab-nav-item" type="button" ng-click="panel.selectTab(3)">
+      <a class="tab-nav-link btn list-group-item" href ng-class="{'active': panel.tab === 3}">Maps</a></li>
+    <li class="tab-nav-item" type="button" ng-click="panel.selectTab(4)">
+      <a class="tab-nav-link btn list-group-item" href ng-class="{'active': panel.tab === 4}">Mentors</a></li>
+    <li class="tab-nav-item" type="button">
+      <a class="tab-nav-link btn list-group-item" href="https://hardware.mlh.io/events/beach-hacks" target="_blank">Hardware</a></li>
+    <li class="tab-nav-item" type="button">
+      <a class="tab-nav-link btn list-group-item" href="https://beachhacks-2.devpost.com/" target="_blank">Submit</a></li>
+    <li class="tab-nav-item" type="button" ng-click="panel.selectTab(5)">
+      <a class="tab-nav-link btn list-group-item" href ng-class="{'active': panel.tab === 5}">Songs</a></li>
+  </ul>
+</div>
+
+<h1> {{panel.tab}}</h1>

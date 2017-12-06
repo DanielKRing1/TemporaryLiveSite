@@ -1,0 +1,22 @@
+<!-- MAPS -->
+<div ng-show="panel.isSelected(3)">
+
+  <h1 class="tab-title">Maps</h1>
+
+  <div>
+    <ul class="nav map-nav">
+      <li class="list-group-item map-nav-item" type="button" ng-class="{'active': mapTab.selectedMap == 'campus'}" ng-click="mapTab.selectMap('campus')">
+        <a class="btn map-selection-btn">Campus</a></li>
+      <li class="list-group-item map-nav-item" type="button" ng-class="{'active': mapTab.selectedMap == 'venue'}" ng-click="mapTab.selectMap('venue')">
+        <a class="btn map-selection-btn">Venue</a></li>
+    </ul>
+  </div>
+
+  <ul class="list-group">
+    <!--Repeat for each in array-->
+    <li class="list-group">
+      <img class="campus-map-img" ng-show="mapTab.selectedMap === 'campus'" src="campus_map.png" alt="Campus Map"/>
+      <img class="venue-map-img" ng-show="mapTab.selectedMap === 'venue'" src="venue_map.png" alt="Venue Map"/>
+    </li>
+  </ul>
+</div>

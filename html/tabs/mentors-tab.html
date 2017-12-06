@@ -1,0 +1,86 @@
+<!-- MENTORS -->
+<div ng-show="panel.isSelected(4)">
+
+  <h1 class="tab-title">Request a Mentor</h1>
+
+  <!-- ADMIN -->
+  <h1>Admin</h1>
+  <form class="anncmnt-form" ng-submit="mentorsTab.addMentor()">
+    <input class="form-control" type="text" placeholder="Add Mentor to List" ng-model="mentorsTab.newMentor">
+    <button class="btn" type="submit">Add</button>
+  </form>
+
+  <ul class="list-group" ng-repeat="(key, mentor) in mentorsTab.mentorList">
+    <!--Repeat for each in array-->
+    <li class="mentor list-group-item">
+      <div class="row">
+        <h5 class="col-sm-3 mentor-item">{{mentor.name}}</h5>
+        <h5 class="col-sm-2 mentor-item" ng-show="mentor.available">Available</h5>
+        <h5 class="col-sm-2 mentor-item" ng-show="!mentor.available">Not Available</h5>
+        <div class="row col-sm-6">
+          <button class="btn availability-btn" ng-click="mentorsTab.setAvailability(key, true)">Available</button>
+          <button class="btn availability-btn" ng-click="mentorsTab.setAvailability(key, false)">Unavailable</button>
+
+        </div>
+        <button class="col-sm-1 btn delete-mentor-btn" type="submit"
+        ng-click="mentorsTab.deleteMentor(key)">X</button>
+      </div>
+    </li>
+  </ul>
+
+  <!-- GERNERAL USER -->
+  <h1>General User</h1>
+
+  <!-- REQUEST FORM -->
+  <div class="row">
+    <div class="col-sm-6"></div>
+    <form name="requestForm" class="list-group-item" ng-submit="requestForm.$valid && mentorsTab.submitRequest()" novalidate>
+      <button class="btn" ng-click="mentorsTab.startRequest()" ng-hide="mentorsTab.isRequesting">Request</button>
+
+      <h1>Valid: {{requestForm.$valid}}</h1>
+
+      <div ng-show="mentorsTab.isRequesting">
+        <fieldset class="form-group">
+          <input class="form-control" name="name" type="text" id="mentor-req-name-form" placeholder="Your name" ng-model="mentorsTab.requestInfo.name" required>
+        </fieldset>
+
+        <fieldset class="form-group">
+          <select ng-model="mentorsTab.requestInfo.technology" class="form-control" ng-options="item for item in tech" required>
+            <option value="">Choose type of tech</option>
+          </select>
+        </fieldset>
+
+        <fieldset class="form-group">
+          <textarea class="form-control" type="text" id="mentor-req-desc-form" placeholder="Describe your problem" ng-model="mentorsTab.requestInfo.description" required></textarea>
+          <input class="form-control col-sm-6" id="mentor-req-table-form" type="number" min="0" max="99" placeholder="Table #" ng-model="mentorsTab.requestInfo.table" required>
+        </fieldset>
+        <button class="btn" id="add-anncmnt-btn" type="submit">Submit</button>
+
+        <button class="btn" ng-click="mentorsTab.clearRequest()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <ul class="list-group" ng-repeat="(key, mentor) in mentorsTab.mentorList">
+    <li class="mentor list-group-item">
+      <!-- MENTOR LIST -->
+      <div class="row">
+        <h5 class="col-sm-7 mentor-item">{{mentor.name}}</h5>
+        <h5 class="col-sm-5 mentor-item" ng-show="mentor.available">Available</h5>
+        <h5 class="col-sm-5 mentor-item" ng-show="!mentor.available">Not Available</h5>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!--
+        <form class="col-sm-4 mentor-item" ng-show="mentorsTab.chosenMentor === key"
+        ng-submit="mentorTab.submitRequest()">
+          <input class="form-control" type="text" id="mentor-req-name-form" placeholder="Your name" ng-model="mentorsTab.requestInfo.name">
+          <input class="form-control" type="text" id="mentor-req-table-form" placeholder="Table num" ng-model="mentorsTab.requestInfo.table">
+          <input class="form-control" type="text" id="mentor-req-desc-form" placeholder="Describe your problem" ng-model="mentorsTab.requestInfo.description">
+          <button class="btn" id="add-anncmnt-btn" ng-click="mentorsTab.submitRequest(key)">Update</button>
+
+          <button class="btn" ng-click="mentorsTab.clearRequest()">Cancel</button>
+        </form>
+      -->
