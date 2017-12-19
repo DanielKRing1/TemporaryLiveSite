@@ -1,8 +1,19 @@
 <!-- SCHEDULE -->
-<div ng-show="panel.isSelected(2)">
+<div class="schedule-tab" ng-show="panel.isSelected(2)">
 
   <h1 class="tab-title">Schedule</h1>
+  <div ng-show="site.loggedIn">
+    <div class="box-message">
+        <div class="row">
+            <!--<input type="file" id="file" name="file"/>-->
+            <input type="file" id="file" file-model="myFile"/>
+            <button ng-click="scheduleTab.uploadFile()" type="submit">Upload New Schedule</button>
+            <!--<a href="{{jsonUrl}}" download="schedule.json">Download Current Schedule</a>-->
+        </div>
+    </div>
+  </div>
 
+  <div ng-hide="site.loggedIn">
   <ul class="timeline timeline-centered" ng-repeat="(day,times) in schedule">
       <li class="timeline-item period">
           <div class="timeline-info"></div>
@@ -22,4 +33,5 @@
           </div>
       </li>
   </ul>
+</div>
 </div>
