@@ -18,6 +18,31 @@
 
   <body ng-controller="LiveSiteController as site">
 
+    <!-- LOGIN -->
+    <div class="col-sm-3">
+      <!-- Not logged in -->
+      <div ng-hide="site.loggedIn">
+        <!-- Open Login -->
+        <div ng-hide="site.showLogin">
+          <button class="btn" type="submit" ng-click="site.openLogin()">Login</button>
+        </div>
+        <!-- Enter login -->
+        <div ng-show="site.showLogin">
+          <fieldset class="form-group">
+            <input class="form-control" type="text" placeholder="Enter password" ng-model="site.enteredKey">
+            <button class="btn" type="submit" ng-click="site.validateLogin()">Submit</button>
+            <!-- Cancel -->
+            <button class="btn" type="submit" ng-click="site.cancelLogin()">Cancel</button>
+          </fieldset>
+        </div>
+      </div>
+
+      <!-- Logged in -->
+      <div ng-show="site.loggedIn">
+        <button class="btn" type="submit" ng-click="site.logOut()">Log out</button>
+      </div>
+    </div>
+
     <div>
       <!-- TAB NAVBAR -->
       <section class="list-group-item">

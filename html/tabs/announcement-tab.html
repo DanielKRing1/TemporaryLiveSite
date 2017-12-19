@@ -3,36 +3,41 @@
 
   <h1 class="tab-title">Announcements</h1>
 
-  <!-- ANNOUNCEMENT FORM -->
-  <h1>ADMIN</h1>
-  <form class="anncmnt-form" ng-submit="anncmntCtrl.addAnnouncement()">
-    <input class="form-control" type="text" id="anncmnt-input" placeholder="Add Announcement" ng-model="anncmntCtrl.newAnnouncement">
-    <button class="btn" type="submit" id="add-anncmnt-btn">Update</button>
-  </form>
-  <!-- ANNOUNCEMENT PREVIEW -->
+  <!-- ADMIN -->
+  <div ng-show="site.loggedIn">
+    <!-- ANNOUNCEMENT FORM -->
+    <h1>ADMIN</h1>
+    <form class="anncmnt-form" ng-submit="anncmntCtrl.addAnnouncement()">
+      <input class="form-control" type="text" id="anncmnt-input" placeholder="Add Announcement" ng-model="anncmntCtrl.newAnnouncement">
+      <button class="btn" type="submit" id="add-anncmnt-btn">Update</button>
+    </form>
+    <!-- ANNOUNCEMENT PREVIEW -->
 
-  <!-- LIST OF ANNOUNCEMENTS -->
-  <ul class="anncmnt-list list-group" ng-repeat="(key, announcement) in anncmntCtrl.announcementList | customReverse">
-    <!-- ng-repeat="| orderBy: '-date'" -->
-    <li class="anncmnt list-group-item">
-      <div class="row">
-        <h5 class="col-sm-3 anncmnt-item">{{announcement.time | date:'EEEE h:mm a'}}</h5>
-        <h5 class="col-sm-8 anncmnt-item">{{announcement.description}}</h5>
-        <button class="col-sm-1 btn anncmnt-add-btn" type="submit" id="del-anncmnt-btn"
-        ng-click="anncmntCtrl.deleteAnnouncement(key)">X</button>
-      </div>
-    </li>
-  </ul>
+    <!-- LIST OF ANNOUNCEMENTS -->
+    <ul class="anncmnt-list list-group" ng-repeat="(key, announcement) in anncmntCtrl.announcementList | customReverse">
+      <!-- ng-repeat="| orderBy: '-date'" -->
+      <li class="anncmnt list-group-item">
+        <div class="row">
+          <h5 class="col-sm-3 anncmnt-item">{{announcement.time | date:'EEEE h:mm a'}}</h5>
+          <h5 class="col-sm-8 anncmnt-item">{{announcement.description}}</h5>
+          <button class="col-sm-1 btn anncmnt-add-btn" type="submit" id="del-anncmnt-btn"
+          ng-click="anncmntCtrl.deleteAnnouncement(key)">X</button>
+        </div>
+      </li>
+    </ul>
+  </div>
 
-  <h1>General User</h1>
-  <!-- LIST OF ANNOUNCEMENTS -->
-  <ul class="anncmnt-list list-group" ng-repeat="(key, announcement) in anncmntCtrl.announcementList | customReverse">
-    <!-- ng-repeat="| orderBy: '-date'" -->
-    <li class="anncmnt list-group-item">
-      <div class="row">
-        <h5 class="col-sm-3 anncmnt-item">{{announcement.time | date:'EEEE h:mm a'}}</h5>
-        <h5 class="col-sm-9 anncmnt-item">{{announcement.description}}</h5>
-      </div>
-    </li>
-  </ul>
+  <!-- GENERAL USER -->
+  <div ng-hide="site.loggedIn">
+    <!-- LIST OF ANNOUNCEMENTS -->
+    <ul class="anncmnt-list list-group" ng-repeat="(key, announcement) in anncmntCtrl.announcementList | customReverse">
+      <!-- ng-repeat="| orderBy: '-date'" -->
+      <li class="anncmnt list-group-item">
+        <div class="row">
+          <h5 class="col-sm-3 anncmnt-item">{{announcement.time | date:'EEEE h:mm a'}}</h5>
+          <h5 class="col-sm-9 anncmnt-item">{{announcement.description}}</h5>
+        </div>
+      </li>
+    </ul>
+  </div>
 </div>

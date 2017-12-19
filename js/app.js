@@ -37,6 +37,13 @@
       });
     };
 
+    this.changeInFB = function (array, index, attribute, newValue) {
+      array[index].attribute = newValue;
+      array.$save(index).then(function(ref) {
+        ref.key === array[index].$id;
+      });
+    };
+
     this.deleteFromFB = function(array, item) {
       array.$remove(item).then(function(ref) {
         if(ref.key === item.$id){ // true
@@ -155,18 +162,26 @@
 
   //ADMIN------------------------------------------------
   this.loggedIn = false;
+  this.showLogin = false;
   this.loginKey = 'admin';
   this.enteredKey = '';
 
-  var clickInfo = {};
-  console.log("show: "+(false === clickInfo.clicked));
-
-  this.validateLogin = function(){
-    return (loginKey === enteredKey);
+  this.openLogin = function(){
+    this.showLogin = true;
+  };
+  this.cancelLogin = function() {
+    this.showLogin = false;
   };
 
-  this.openLogin = function(){
-
+  this.validateLogin = function() {
+    if(this.loginKey === this.enteredKey) {
+      this.loggedIn = true;
+      console.log("logged in");
+    }
+    this.enteredKey = '';
+  };
+  this.logOut = function() {
+    this.loggedIn = false;
   };
 
 /*
@@ -300,6 +315,16 @@
 
         this.getPendingStatus = function(key) {
           firebase.database().ref('Mentors/MentorRequestInfo/'+key);
+        };
+        this.changePendingStatus = function(key) {
+          tempPending = firebaseService.getFBArray('Mentors/MentorRequestInfo');
+          console.log(tempPending);
+          var val = tempPending[key].pending;
+          tempPending[key].pending = !val;
+          tempPending.$save(key).then(function(ref) {
+            ref.key === tempPending[key].$id;
+          });
+          tempPending.$destroy();
         };
 
         this.postMentorRequestToSlack = function() {
