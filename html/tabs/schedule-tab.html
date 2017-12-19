@@ -3,11 +3,23 @@
 
   <h1 class="tab-title">Schedule</h1>
 
-  <ul class="list-group">
-    <!--Repeat for each in array-->
-    <li class="list-group">
-      <button class="btn pull-right">Add to Cart</button>
-      <button class="btn form-control" type="button" id="del-anncmnt-btn">X</button>
-    </li>
+  <ul class="timeline timeline-centered" ng-repeat="(day,times) in schedule">
+      <li class="timeline-item period">
+          <div class="timeline-info"></div>
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+              <h2 class="timeline-title">{{day}}</h2>
+          </div>
+      </li>
+      <li class="timeline-item" ng-repeat="(time,event) in times">
+          <div class="timeline-info">
+              <span>{{time}}</span>
+          </div>
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+              <h3 class="timeline-title">{{event.title}}</h3>
+              <p>{{event.description}}</p>
+          </div>
+      </li>
   </ul>
 </div>

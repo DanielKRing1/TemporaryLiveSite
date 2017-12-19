@@ -28,15 +28,17 @@
     </li>
   </ul>
 
-  <div class="row" id="mentor-row">
-    <!-- PENDING REQUESTS -->
-    <div class="col-sm-6 list-group-item" id="pending-request-group" >
+  <div class="row">
+    <!-- ADMIN PENDING REQUESTS -->
+    <div class="col-sm-6 list-group-item">
       <h4>All Requests</h4>
-      <ul ng-repeat="request in mentorsTab.pendingMentorRequests | customReverse">
+      <ul ng-repeat="(key, request) in mentorsTab.pendingMentorRequests | customReverse">
         <li class="row">
-          <h5 class="col-sm-5">{{request.name | limitTo: 15}}</h5>
+          <h5 class="col-sm-4">{{request.name | limitTo: 15}}</h5>
           <h5 class="col-sm-3">{{request.time | date:'EEEE h:mm a'}}</h5>
           <h5 class="col-sm-4">{{request.pending | pendingStatus}}</h5>
+
+          <button class="btn" ng-click="mentorsTab.deleteRequest(key)">X</button>
 
         </li>
       </ul>
@@ -78,7 +80,18 @@
 
   <!-- GERNERAL USER -->
   <h1>General User</h1>
-
+  <!-- PENDING REQUESTS -->
+  <div class="col-sm-6 list-group-item">
+    <h4>All Requests</h4>
+    <ul ng-repeat="(key, request) in mentorsTab.pendingMentorRequests | customReverse">
+      <li class="row">
+        <h5 class="col-sm-4">{{request.name | limitTo: 15}}</h5>
+        <h5 class="col-sm-3">{{request.time | date:'EEEE h:mm a'}}</h5>
+        <h5 class="col-sm-4">{{request.pending | pendingStatus}}</h5>
+      </li>
+    </ul>
+  </div>
+  <!-- Mentor List -->
   <ul class="list-group" ng-repeat="(key, mentor) in mentorsTab.mentorList">
     <li class="mentor list-group-item">
       <!-- MENTOR LIST -->

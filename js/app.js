@@ -1,19 +1,18 @@
 (function(){
 
   console.log('aaa');
-    // Initialize Firebase
+  // Initialize Firebase
   var config = {
-      apiKey: "AIzaSyAW2r9iB3R-nXELIHswj16v32LyGyUh3PI",
-      authDomain: "beach-hacks-live.firebaseapp.com",
-      databaseURL: "https://beach-hacks-live.firebaseio.com",
-      projectId: "beach-hacks-live",
-      storageBucket: "beach-hacks-live.appspot.com",
-      messagingSenderId: "1057807344162"
-    };
+  		apiKey: "AIzaSyAif6z5dFWTN2KdRgT60e6fkczE9qC2-Gw",
+  		authDomain: "angulardemo-17478.firebaseapp.com",
+  		databaseURL: "https://angulardemo-17478.firebaseio.com",
+  		storageBucket: "angulardemo-17478.appspot.com",
+  		messagingSenderId: "449211195314"
+  	};
   firebase.initializeApp(config);
 
 // FILTER-----------------------------------------------
-  var app = angular.module('site', ['firebase', 'site-announcements']);
+  var app = angular.module('site', ['firebase', 'site-announcements', 'site-schedule']);
 
   app.service('firebaseService', function($firebaseArray){
 
@@ -46,6 +45,28 @@
         }
       });
     };
+  });
+
+  app.service('ScheduleService', function() {
+    var schedule = null;
+    var schedule_callbacks = [];
+
+    var getSchedule = function () {
+       return schedule;
+     }
+
+    firebase.database().ref('/schedule').on("value", function(snapshot) {
+      schedule = JSON.parse(snapshot.val());
+      //console.log(schedule);
+      for (var i = 0; i < schedule_callbacks.length; i++)
+      {
+          schedule_callbacks[i]();
+      }
+    });
+
+    var service = {getSchedule: getSchedule,
+                   updateSchedule: function(_callback){schedule_callbacks.push(_callback)}};
+    return service;
   });
 
   app.filter('pendingStatus', function() {
@@ -157,9 +178,9 @@
       $scope.activeNotification = val;
       console.log($scope.activeNotification);
     };
+    */
 
   });
-*/
 
   app.directive('generalUserView', function(){
     return {
@@ -201,17 +222,6 @@
     };
   });
 
-  app.directive('scheduleTab', function () {
-    return {
-      restrict: 'E',
-      templateUrl: '/html/tabs/schedule-tab.html'
-    };
-  });
-
-
-
-
-
   app.directive('mapsTab', function() {
     return {
       restrict: 'E',
@@ -227,45 +237,11 @@
     };
   });
 
-  app.directive('scrollToTop', function() {
-    return {
-      restrict: 'A',
-      link: function(scope, elm, attr) {
-        var isTop;
-        //bind changes from scope to our view: set isTop variable
-        //depending on what scope variable is. If scope value
-        //changes to true and we aren't at top, go to top
-        scope.$watch(attr.scrollToTop, function(newValue) {
-          newValue = !!newValue; //to boolean
-          if (!isTop && newValue) {
-            elm[0].scrollTo(0,0);
-          }
-          isTop = newValue;
-        });
-
-        //If we are at top and we scroll down, set isTop and
-        //our variable on scope to false.
-        elm.bind('scroll', function() {
-          if (elm[0].scrollTop !==0 && isTop) {
-            //Use $apply to tell angular
-            //'hey, we are gonna change something from outside angular'
-            scope.$apply(function() {
-              //(we should use $parse service here, but simple for example)
-              scope[attr.scrollTop] = false;
-              isTop = false;
-            });
-          }
-        });
-
-      }
-    };
-  });
-
   app.directive('mentorsTab', function() {
     return {
       restrict: 'E',
       templateUrl: 'html/tabs/mentors-tab.html',
-      controller: function($scope, $firebaseObject, $firebaseArray, $http) {
+      controller: function($scope, $firebaseObject, $firebaseArray, $http, firebaseService) {
 
         /* Database Display */
         mentorListRef = getFBRef('Mentors/MentorsList');
@@ -291,7 +267,7 @@
         };
 
         /* Request */
-        mentorRequestInfoRef = getFBRef('Mentors/MentorRequestInfo')
+        this.mentorRequestList = firebaseService.getFBArray('Mentors/MentorRequestInfo');
         $scope.tech = ['web', 'iOS', 'Android', 'VR', 'Hardware', 'Other'];
         this.isRequesting = false;
         this.requestInfo = {};
@@ -305,11 +281,16 @@
           this.requestInfo.pending = true;
 
           console.log('request function');
-          mentorRequestInfoRef.push(this.requestInfo);
+          firebaseService.addToFB(this.mentorRequestList, this.requestInfo);
 
           this.postMentorRequestToSlack();
           this.clearRequest();
           console.log('successfully submitted request');
+        };
+
+        this.deleteRequest = function(key){
+          var item = this.mentorRequestList[this.mentorRequestList.length - 1 -key];
+          firebaseService.deleteFromFB(this.mentorRequestList, item);
         };
 
         this.clearRequest = function() {
@@ -431,7 +412,44 @@ https://hooks.slack.com/services/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
   app.directive('songsTab', function() {
       return {
         restrict: 'E',
-        templateUrl: 'html/tabs/songs-tab.html'
+        templateUrl: 'html/tabs/songs-tab.html',
+        controller: function($http) {
+
+          this.postSongRequestToSlack = function() {
+            $http({
+              method: 'POST',
+              url: 'https://hooks.slack.com/services/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',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              data: {
+                "attachments": [{
+                  "fallback": "The attachement isn't loading.",
+                  "callback_id": "mentor_request_app",
+                  "title": "****Song Request @"+this.requestInfo.time+'****',
+                  "color": "#9C1A22",
+                  "mrkdwn_in": ["text","fields"],
+                  "fields": [
+                    {
+                      "title": "Song",
+                      "value": this.requestInfo.name,
+                      "short": true
+                    }
+                  ]
+              }
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+                console.log("sent to slack");
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                console.log("failed to send to slack");
+              });
+            };
+          };
+        },
+        controllerAs: 'songsTab'
       };
     });
 
