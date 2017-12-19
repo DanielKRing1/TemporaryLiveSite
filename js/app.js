@@ -432,10 +432,11 @@ https://hooks.slack.com/services/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
                   "fields": [
                     {
                       "title": "Song",
-                      "value": this.requestInfo.name,
+                      "value": "nothing",
                       "short": true
                     }
-                  ]
+                  ],
+                }]
               }
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
@@ -447,7 +448,7 @@ https://hooks.slack.com/services/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
                 console.log("failed to send to slack");
               });
             };
-          };
+          
         },
         controllerAs: 'songsTab'
       };
