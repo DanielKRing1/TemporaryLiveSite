@@ -310,9 +310,9 @@
             data: {}
           });*/
 
-/* Webhook, no app attached
-https://hooks.slack.com/services/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
-*/
+          /* Webhook, no app attached
+          https://hooks.slack.com/services/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
+          */
           $http({
     			  method: 'POST',
     			  url: 'https://hooks.slack.com/services/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',
@@ -385,7 +385,7 @@ https://hooks.slack.com/services/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
                       "mrkdwn_in": ["text","fields"],
                       "text": this.requestInfo.description
                     }]
-*/
+                    */
 
         this.setAvailability = function(key, availability) {
           firebase.database().ref('Mentors/MentorsList/'+key+'/available').set(availability);
@@ -415,40 +415,50 @@ https://hooks.slack.com/services/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
         templateUrl: 'html/tabs/songs-tab.html',
         controller: function($http) {
 
+          this.songRequest = '';
+          this.clearSongRequest = function() {
+            this.songRequest = '';
+          };
+
           this.postSongRequestToSlack = function() {
-            $http({
-              method: 'POST',
-              url: 'https://hooks.slack.com/services/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',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-              },
-              data: {
-                "attachments": [{
-                  "fallback": "The attachement isn't loading.",
-                  "callback_id": "mentor_request_app",
-                  "title": "****Song Request @"+this.requestInfo.time+'****',
-                  "color": "#9C1A22",
-                  "mrkdwn_in": ["text","fields"],
-                  "fields": [
-                    {
-                      "title": "Song",
-                      "value": "nothing",
-                      "short": true
-                    }
-                  ],
-                }]
-              }
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-                console.log("sent to slack");
-              }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                console.log("failed to send to slack");
-              });
-            };
-          
+            console.log('1');
+            if(this.songRequest !== ''){
+              $http({
+                method: 'POST',
+                url: 'https://hooks.slack.com/services/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',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: {
+                  "attachments": [{
+                    "fallback": "The attachement isn't loading.",
+                    "callback_id": "mentor_request_app",
+                    "title": "****Song Request @"+this.requestInfo.time+'****',
+                    "color": "#9C1A22",
+                    "mrkdwn_in": ["text","fields"],
+                    "fields": [
+                      {
+                        "title": "Song",
+                        "value": this.songRequest,
+                        "short": true
+                      }
+                    ],
+                  }]
+                }
+              }).then(function successCallback(response) {
+                  // this callback will be called asynchronously
+                  // when the response is available
+                  console.log("sent to slack");
+                }, function errorCallback(response) {
+                  // called asynchronously if an error occurs
+                  // or server returns response with an error status.
+                  console.log("failed to send to slack");
+                });
+              };
+              console.log(2);
+            this.clearSongRequest();
+          };
+
         },
         controllerAs: 'songsTab'
       };
