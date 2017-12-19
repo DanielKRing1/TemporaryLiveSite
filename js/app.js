@@ -12,9 +12,174 @@
     };
   firebase.initializeApp(config);
 
-  var app = angular.module('beach', ['firebase']);
-  app.controller('LiveSiteController', function($firebaseObject){
+// FILTER-----------------------------------------------
+  var app = angular.module('site', ['firebase', 'site-announcements']);
 
+  app.service('firebaseService', function($firebaseArray){
+
+    // Gets Firebase ref from url
+    this.getFBRef = function(path) {
+      return firebase.database().ref(path);
+    };
+
+    // Calls getFBRef(), returns $firebaseArray from ref
+    this.getFBArray = function(path) {
+      var ref = getFBRef(path);
+      return $firebaseArray(ref);
+    }
+
+    //
+    this.addToFB = function(array, data) {
+      //ref
+      array.$add(data).then(function(ref) {
+        var id = ref.key;
+        console.log("added record with id " + id);
+        array.$indexFor(id); // returns location in the array
+      });
+    };
+
+    this.deleteFromFB = function(array, item) {
+      array.$remove(item).then(function(ref) {
+        if(ref.key === item.$id){ // true
+          var id = ref.key;
+          console.log("deleted record with id " + id);
+        }
+      });
+    };
+  });
+
+  app.filter('pendingStatus', function() {
+    return function(val) {
+      if(val === true) {
+        return 'pending';
+      }
+      return 'complete';
+    };
+  });
+
+  app.filter('customReverse', function() {
+    /*var newList = {};
+    for(var i = 0; i < items.length; i++){
+      if(i === 2){
+        console.log("check this");
+      }
+      newList[i] = items[items.length-i-1];
+    }
+    return newList;*/
+
+    return function(items) {
+      return items.slice().reverse();
+    };
+  });
+
+  app.controller('LiveSiteController', function($scope, $firebaseObject){
+
+  this.firebaseMessaging = function() {
+  /*
+    // FIREBASE MESSAGING
+    const messaging = firebase.messaging();
+
+    // PERMISSIONS
+    messaging.requestPermission()
+    .then(function() {
+      console.log('Notification permission granted.');
+      // TODO(developer): Retrieve an Instance ID token for use with FCM.
+      // ...
+    })
+    .catch(function(err) {
+      console.log('Unable to get permission to notify.', err);
+    });
+
+    // GET TOKEN
+    // Get Instance ID token. Initially this makes a network call, once retrieved
+    // subsequent calls to getToken will return from cache.
+    messaging.getToken()
+    .then(function(currentToken) {
+      if (currentToken) {
+        sendTokenToServer(currentToken);
+        updateUIForPushEnabled(currentToken);
+      } else {
+        // Show permission request.
+        console.log('No Instance ID token available. Request permission to generate one.');
+        // Show permission UI.
+        updateUIForPushPermissionRequired();
+        setTokenSentToServer(false);
+      }
+    })
+    .catch(function(err) {
+      console.log('An error occurred while retrieving token. ', err);
+      showToken('Error retrieving Instance ID token. ', err);
+      setTokenSentToServer(false);
+    });
+
+    // Refresh TOKEN
+    // Callback fired if Instance ID token is updated.
+  messaging.onTokenRefresh(function() {
+    messaging.getToken()
+    .then(function(refreshedToken) {
+      console.log('Token refreshed.');
+      // Indicate that the new Instance ID token has not yet been sent to the
+      // app server.
+      setTokenSentToServer(false);
+      // Send Instance ID token to app server.
+      sendTokenToServer(refreshedToken);
+      // ...
+    })
+    .catch(function(err) {
+      console.log('Unable to retrieve refreshed token ', err);
+      showToken('Unable to retrieve refreshed token ', err);
+    });
+  });*/
+  };
+
+  //ADMIN------------------------------------------------
+  this.loggedIn = false;
+  this.loginKey = 'admin';
+  this.enteredKey = '';
+
+  var clickInfo = {};
+  console.log("show: "+(false === clickInfo.clicked));
+
+  this.validateLogin = function(){
+    return (loginKey === enteredKey);
+  };
+
+  this.openLogin = function(){
+
+  };
+
+/*
+  // PUSH NOTIFICATION-------------------------------------
+    $scope.activeNotification = true;
+    console.log($scope.activeNotification);
+
+    this.setActiveNotification = function(val) {
+      $scope.activeNotification = val;
+      console.log($scope.activeNotification);
+    };
+
+  });
+*/
+
+  app.directive('generalUserView', function(){
+    return {
+      restrict: 'E',
+      templateUrl: 'html/login-states/general-user.html',
+      controller: function() {
+
+      },
+      controllerAs: 'general'
+    };
+  });
+  app.directive('adminView', function(){
+    return {
+      restrict: 'E',
+      templateUrl: 'html/login-states/admin.html',
+      controller: function() {
+
+      },
+      controllerAs: 'admin'
+    };
   });
 
   app.directive('tabNav', function(){
@@ -43,41 +208,9 @@
     };
   });
 
-  app.directive('announcementTab', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/html/tabs/announcement-tab.html',
-      controller: function($scope, $firebaseObject) {
 
-        // FB Database
-        ref = getFBRef('Announcements');
-        this.announcementList = $firebaseObject(ref);
 
-        // New announcement
-        this.newAnnouncement;
 
-        this.addAnnouncement = function(){
-          console.log(this.newAnnouncement);
-
-          if(this.newAnnouncement !== ''){
-            var a = {};
-            a.time = Date.now();
-            a.description = this.newAnnouncement;
-
-            ref.push(a);
-
-            this.newAnnouncement = '';
-          }
-        };
-
-        this.deleteAnnouncement = function(key){
-          console.log(key);
-          firebase.database().ref('Announcements/'+key).remove();
-        };
-      },
-      controllerAs: 'anncmntCtrl'
-    };
-  });
 
   app.directive('mapsTab', function() {
     return {
@@ -94,15 +227,51 @@
     };
   });
 
+  app.directive('scrollToTop', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, elm, attr) {
+        var isTop;
+        //bind changes from scope to our view: set isTop variable
+        //depending on what scope variable is. If scope value
+        //changes to true and we aren't at top, go to top
+        scope.$watch(attr.scrollToTop, function(newValue) {
+          newValue = !!newValue; //to boolean
+          if (!isTop && newValue) {
+            elm[0].scrollTo(0,0);
+          }
+          isTop = newValue;
+        });
+
+        //If we are at top and we scroll down, set isTop and
+        //our variable on scope to false.
+        elm.bind('scroll', function() {
+          if (elm[0].scrollTop !==0 && isTop) {
+            //Use $apply to tell angular
+            //'hey, we are gonna change something from outside angular'
+            scope.$apply(function() {
+              //(we should use $parse service here, but simple for example)
+              scope[attr.scrollTop] = false;
+              isTop = false;
+            });
+          }
+        });
+
+      }
+    };
+  });
+
   app.directive('mentorsTab', function() {
     return {
       restrict: 'E',
       templateUrl: 'html/tabs/mentors-tab.html',
-      controller: function($scope, $firebaseObject, $http) {
+      controller: function($scope, $firebaseObject, $firebaseArray, $http) {
 
         /* Database Display */
         mentorListRef = getFBRef('Mentors/MentorsList');
         this.mentorList = $firebaseObject(mentorListRef);
+        pendingMentorRequestsRef = getFBRef('Mentors/MentorRequestInfo');
+        this.pendingMentorRequests = $firebaseArray(pendingMentorRequestsRef);
 
         this.newMentor = '';
 
@@ -132,6 +301,9 @@
         };
 
         this.submitRequest = function(key) {
+          this.requestInfo.time = Date.now();
+          this.requestInfo.pending = true;
+
           console.log('request function');
           mentorRequestInfoRef.push(this.requestInfo);
 
@@ -140,9 +312,16 @@
           console.log('successfully submitted request');
         };
 
-        this.postMentorRequestToSlack = function() {
-          var time = getTime();
+        this.clearRequest = function() {
+          this.isRequesting = false;
+          this.requestInfo = {};
+        };
 
+        this.getPendingStatus = function(key) {
+          firebase.database().ref('Mentors/MentorRequestInfo/'+key);
+        };
+
+        this.postMentorRequestToSlack = function() {
           /*
           $http({
             method: 'POST',
@@ -163,7 +342,7 @@ https://hooks.slack.com/services/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
               "attachments": [{
                 "fallback": "The attachement isn't loading.",
                 "callback_id": "mentor_request_app",
-                "title": "****Mentor Request @"+time+'****',
+                "title": "****Mentor Request @"+this.requestInfo.time+'****',
                 "color": "#9C1A22",
                 "mrkdwn_in": ["text","fields"],
                 "fields": [
@@ -215,22 +394,6 @@ https://hooks.slack.com/services/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
     			  });
           };
 
-          function getTime() {
-            date = new Date();
-            var time = '';
-
-            if(date.getHours() === 12){
-              time += '12:'+date.getMinutes()+'pm';
-            }else if(date.getHours() > 12){
-              time += (date.getHours()%13+1)+':'+date.getMinutes()+'pm';
-            }else {
-              time += date.getHours()+'+'+date.getMinutes()+'am';
-            }
-
-            return time;
-          };
-
-
         /*            "channel": "#mentor-request",
                     "attachments": [{
                       "fallback": "The attachement isn't loading.",
@@ -245,11 +408,6 @@ https://hooks.slack.com/services/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
 
         this.setAvailability = function(key, availability) {
           firebase.database().ref('Mentors/MentorsList/'+key+'/available').set(availability);
-        };
-
-        this.clearRequest = function() {
-          this.isRequesting = false;
-          this.requestInfo = {};
         };
       },
       controllerAs: 'mentorsTab'
@@ -278,10 +436,35 @@ https://hooks.slack.com/services/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
     });
 
     function getFBRef(child){
+      console.log("into");
       const rootRef = firebase.database().ref();
       const ref = rootRef.child(child);
       return ref;
     }
+
+    function getTime() {
+      date = new Date();
+      var time = '';
+
+      var min = '';
+      if(date.getMinutes() < 10){
+        min = '0'+date.getMinutes();
+      }else {
+        min = date.getMinutes();
+      }
+
+      if(date.getHours() === 12){
+        time += '12:'+min+'pm';
+      }else if(date.getHours() > 12){
+        time += (date.getHours()%13+1)+':'+min+'pm';
+      }else {
+        time += date.getHours()+':'+min+'am';
+      }
+      console.log(date.getMinutes());
+
+
+      return time;
+    };
 
 })();
 

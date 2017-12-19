@@ -10,15 +10,14 @@
     <button class="btn" type="submit" id="add-anncmnt-btn">Update</button>
   </form>
   <!-- ANNOUNCEMENT PREVIEW -->
-  <h2>{{anncmnts.list.$id}}</h2>
 
   <!-- LIST OF ANNOUNCEMENTS -->
-  <ul class="anncmnt-list list-group" ng-repeat="(key, announcement) in anncmntCtrl.announcementList">
+  <ul class="anncmnt-list list-group" ng-repeat="(key, announcement) in anncmntCtrl.announcementList | customReverse">
     <!-- ng-repeat="| orderBy: '-date'" -->
     <li class="anncmnt list-group-item">
       <div class="row">
-        <h5 class="col-sm-2 anncmnt-item">{{announcement.time | date:'EEEE h:mm a'}}</h5>
-        <h5 class="col-sm-9 anncmnt-item">{{announcement.description}}</h5>
+        <h5 class="col-sm-3 anncmnt-item">{{announcement.time | date:'EEEE h:mm a'}}</h5>
+        <h5 class="col-sm-8 anncmnt-item">{{announcement.description}}</h5>
         <button class="col-sm-1 btn anncmnt-add-btn" type="submit" id="del-anncmnt-btn"
         ng-click="anncmntCtrl.deleteAnnouncement(key)">X</button>
       </div>
@@ -27,11 +26,11 @@
 
   <h1>General User</h1>
   <!-- LIST OF ANNOUNCEMENTS -->
-  <ul class="anncmnt-list list-group" ng-repeat="(key, announcement) in anncmntCtrl.announcementList">
+  <ul class="anncmnt-list list-group" ng-repeat="(key, announcement) in anncmntCtrl.announcementList | customReverse">
     <!-- ng-repeat="| orderBy: '-date'" -->
     <li class="anncmnt list-group-item">
       <div class="row">
-        <h5 class="col-sm-2 anncmnt-item">{{announcement.time | date:'EEEE h:mm a'}}</h5>
+        <h5 class="col-sm-3 anncmnt-item">{{announcement.time | date:'EEEE h:mm a'}}</h5>
         <h5 class="col-sm-9 anncmnt-item">{{announcement.description}}</h5>
       </div>
     </li>

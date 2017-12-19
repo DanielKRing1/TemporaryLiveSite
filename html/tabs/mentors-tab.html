@@ -28,38 +28,56 @@
     </li>
   </ul>
 
+  <div class="row" id="mentor-row">
+    <!-- PENDING REQUESTS -->
+    <div class="col-sm-6 list-group-item" id="pending-request-group" >
+      <h4>All Requests</h4>
+      <ul ng-repeat="request in mentorsTab.pendingMentorRequests | customReverse">
+        <li class="row">
+          <h5 class="col-sm-5">{{request.name | limitTo: 15}}</h5>
+          <h5 class="col-sm-3">{{request.time | date:'EEEE h:mm a'}}</h5>
+          <h5 class="col-sm-4">{{request.pending | pendingStatus}}</h5>
+
+        </li>
+      </ul>
+    </div>
+
+    <!-- REQUEST FORM -->
+    <div class="col-sm-6" id="mentor-request-form">
+
+      <div class="list-group-item" ng-hide="mentorsTab.isRequesting">
+        <h1>Begin a request</h1>
+        <button class="btn" ng-click="mentorsTab.startRequest()">Request</button>
+      </div>
+
+      <form name="requestForm" class="list-group-item request-form" ng-show="mentorsTab.isRequesting" ng-submit="requestForm.$valid && mentorsTab.submitRequest()" novalidate>
+        <h1>Valid: {{requestForm.$valid}}</h1>
+
+        <div>
+          <fieldset class="form-group">
+            <input class="form-control" name="name" type="text" id="mentor-req-name-form" placeholder="Your name" ng-model="mentorsTab.requestInfo.name" required>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <select ng-model="mentorsTab.requestInfo.technology" class="form-control" ng-options="item for item in tech" required>
+              <option value="">Choose type of tech</option>
+            </select>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <textarea class="form-control" type="text" id="mentor-req-desc-form" placeholder="Describe your problem" ng-model="mentorsTab.requestInfo.description" required></textarea>
+            <input class="form-control col-sm-6" id="mentor-req-table-form" type="number" min="0" max="99" placeholder="Table #" ng-model="mentorsTab.requestInfo.table" required>
+          </fieldset>
+          <button class="btn" id="add-anncmnt-btn" type="submit">Submit</button>
+
+          <button class="btn" ng-click="mentorsTab.clearRequest()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- GERNERAL USER -->
   <h1>General User</h1>
-
-  <!-- REQUEST FORM -->
-  <div class="row">
-    <div class="col-sm-6"></div>
-    <form name="requestForm" class="list-group-item" ng-submit="requestForm.$valid && mentorsTab.submitRequest()" novalidate>
-      <button class="btn" ng-click="mentorsTab.startRequest()" ng-hide="mentorsTab.isRequesting">Request</button>
-
-      <h1>Valid: {{requestForm.$valid}}</h1>
-
-      <div ng-show="mentorsTab.isRequesting">
-        <fieldset class="form-group">
-          <input class="form-control" name="name" type="text" id="mentor-req-name-form" placeholder="Your name" ng-model="mentorsTab.requestInfo.name" required>
-        </fieldset>
-
-        <fieldset class="form-group">
-          <select ng-model="mentorsTab.requestInfo.technology" class="form-control" ng-options="item for item in tech" required>
-            <option value="">Choose type of tech</option>
-          </select>
-        </fieldset>
-
-        <fieldset class="form-group">
-          <textarea class="form-control" type="text" id="mentor-req-desc-form" placeholder="Describe your problem" ng-model="mentorsTab.requestInfo.description" required></textarea>
-          <input class="form-control col-sm-6" id="mentor-req-table-form" type="number" min="0" max="99" placeholder="Table #" ng-model="mentorsTab.requestInfo.table" required>
-        </fieldset>
-        <button class="btn" id="add-anncmnt-btn" type="submit">Submit</button>
-
-        <button class="btn" ng-click="mentorsTab.clearRequest()">Cancel</button>
-      </div>
-    </form>
-  </div>
 
   <ul class="list-group" ng-repeat="(key, mentor) in mentorsTab.mentorList">
     <li class="mentor list-group-item">
