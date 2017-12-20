@@ -1,7 +1,7 @@
 (function(){
 
-  console.log('aaa');
   // Initialize Firebase
+  // Copy and Pasted from Firebase Console, allows use of firebase
   var config = {
   		apiKey: "AIzaSyAif6z5dFWTN2KdRgT60e6fkczE9qC2-Gw",
   		authDomain: "angulardemo-17478.firebaseapp.com",
@@ -11,7 +11,8 @@
   	};
   firebase.initializeApp(config);
 
-  var app = angular.module('site', ['firebase', 'site-announcements', 'site-schedule']);
+  // Creates AngularJS application, including firebase dependencies
+  var app = angular.module('site', ['firebase']);
 
   // SERVICES--
   // Handles getting, adding, and removing with $firebaseArray
@@ -53,14 +54,18 @@
     };
   });
 
+  //ScheduleService gets the schedule from the Firebase database so the one on the website is
+  //the most updated version
   app.service('ScheduleService', function() {
     var schedule = null;
     var schedule_callbacks = [];
 
+    //returns schedule as a JSON string
     var getSchedule = function () {
        return schedule;
      }
 
+     //sets schedule and calls the callbacks array to update the scope variable in the controller
     firebase.database().ref('/schedule').on("value", function(snapshot) {
       schedule = JSON.parse(snapshot.val());
       //console.log(schedule);
@@ -70,12 +75,14 @@
       }
     });
 
+    //sets service methods to register so when service is injected into controller, ScheduleService
+    //comes with these methods
     var service = {getSchedule: getSchedule,
                    updateSchedule: function(_callback){schedule_callbacks.push(_callback)}};
     return service;
   });
 
-  // CUSTOM FILTERS--
+  // CUSTOM FILTERS (Used in HTML)--
   // Converts firebase mentorRequestInfo.pending from boolean value
   // to String 'pending' for true and 'complete' for false
   app.filter('pendingStatus', function() {
@@ -96,21 +103,23 @@
 
   // Basic Admin Login Funcitonality
   // Will include tighter security features with Firebase Auth in future versions
-  app.controller('LiveSiteController', function($scope, $firebaseObject){
+  app.controller('LoginController', function($scope, $firebaseObject){
     this.loggedIn = false;
     this.showLogin = false;
     this.loginKey = 'admin';
     this.enteredKey = '';
 
-    // Shows login elements
+    // Called in HTML, Shows login elements
     this.openLogin = function(){
       this.showLogin = true;
     };
-    // Hides login elements
+
+    // Called in HTML, Hides login elements
     this.cancelLogin = function() {
       this.showLogin = false;
     };
 
+    // Called in HTML
     // Checks entered login against loginKey
     // If true, logs in user, allows display of admin tabs
     this.validateLogin = function() {
@@ -120,22 +129,11 @@
       }
       this.enteredKey = '';
     };
+    // Called in HTML
     // Logs out user, once again hides admin tabs and hides login elemnts
     this.logOut = function() {
       this.loggedIn = false;
       this.cancelLogin();
-    };
-  });
-
-  // Custom directive to hold all tab directives
-  app.directive('allTabs', function(){
-    return {
-      restrict: 'E',
-      templateUrl: 'html/login-states/all-tabs.html',
-      controller: function() {
-
-      },
-      controllerAs: 'tabs'
     };
   });
 
@@ -147,17 +145,92 @@
       controller: function() {
         this.tab = 1;
 
+        // Called in HTML
         // Changes the selected tab in order to display different tabs when navbar clicked
         this.selectTab = function(setTab) {
           this.tab = setTab;
         };
 
+        // Called in HTML
         // Checks if a tab is selected and returns true if it should be shown
         this.isSelected = function(checkTab) {
           return (this.tab === checkTab);
         };
       },
       controllerAs: 'panel'
+    };
+  });
+
+  // Custom directive for announcement tab
+  app.directive('announcementTab', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/html/tabs/announcement-tab.html',
+      controller: function($scope, $firebaseArray, firebaseService) {
+
+        // FB Data
+        this.announcementList = firebaseService.getFBArray('Announcements');
+        // Admin input anncmnt
+        this.newAnnouncement;
+
+        // Called in HTML AnnouncementsTab Admin
+        // Uses firebaseService to add new Announcement to Firebase database
+        // Compiles all data into a throw away variable 'a', pushes 'a' to firebase
+        this.addAnnouncement = function(){
+          if(this.newAnnouncement !== ''){
+            var a = {};
+            a.time = Date.now();
+            a.description = this.newAnnouncement;
+
+            firebaseService.addToFB(this.announcementList, a);
+
+            this.newAnnouncement = '';
+          }
+        };
+
+        // Called in HTML AnnouncementsTab Admin
+        // Uses firebaseService to delete Announcement from firebase database
+        // Gets Announcement to delete by accessing an index provided by ng-repeat in the html
+        this.deleteAnnouncement = function(key){
+          // customReverse filter reverses array, so key is flipped
+          var item = this.announcementList[this.announcementList.length - 1 -key];
+          firebaseService.deleteFromFB(this.announcementList, item);
+        };
+      },
+      controllerAs: 'anncmntCtrl'
+    };
+  });
+
+  // Custom directive for schedule tab
+  app.directive('scheduleTab', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/html/tabs/schedule-tab.html',
+      controller: function($scope, $rootScope, $firebaseArray, ScheduleService) {
+
+      //Service callback called when the database is updated to re-set $rootScope.schedule
+      ScheduleService.updateSchedule(function() {
+        $scope.$apply(function() {
+          $rootScope.schedule = ScheduleService.getSchedule();
+        });
+      });
+
+      //called from HTML when button is clicked. parses uploaded JSON file into firebase database
+      $scope.uploadFile = function() {
+        console.log("upload");
+        var f = document.getElementById('file').files[0],
+            r = new FileReader();
+
+        r.onload = (function (f) {
+        return function (e) {
+            json = JSON.parse(e.target.result);
+            firebase.database().ref('schedule/').set(JSON.stringify(json));
+        }
+        })(f);
+        r.readAsText(f);
+      };
+      },
+      controllerAs: 'scheduleTab'
     };
   });
 
@@ -169,6 +242,7 @@
       controller: function() {
         this.selectedMap = 'campus';
 
+        // Called in HTML in MapsTab
         // Changes the selected map
         this.selectMap = function(map) {
           this.selectedMap = map;
@@ -186,10 +260,11 @@
       controller: function($scope, $firebaseObject, $firebaseArray, $http, firebaseService) {
 
         // MENTORS SECTION
-        // $firebaseArray's used to handle Mentors Tab data
+        // $firebaseArray's used to handle Mentors data
         this.mentorList = firebaseService.getFBArray('Mentors/MentorsList');
         this.newMentor = '';
 
+        // Called in HTML in MentorsTab Admin
         // Uses firebaseService to add new Mentor to Firebase database
         // Compiles all data into a throw away variable 'a', pushes 'a' to firebase
         this.addMentor = function(){
@@ -203,6 +278,7 @@
           }
         };
 
+        // Called in HTML in MentorsTab Admin
         // Uses firebaseService to delete Mentor from firebase database
         // Gets Mentor to delete by accessing an index provided by ng-repeat in the html
         this.deleteMentor = function(mentorKey) {
@@ -210,6 +286,7 @@
           firebaseService.deleteFromFB(this.mentorList, item)
         };
 
+        // Called in HTML in MentorsTab Admin
         // Changes the .available attribute of a mentorList element and saves value to firebase
         this.setAvailability = function(i, availability) {
             this.mentorList[i].available = availability;
@@ -219,17 +296,20 @@
         };
 
         // REQUEST SECTION
+        // Firebase array data for mentor requests
         this.mentorRequestList = firebaseService.getFBArray('Mentors/MentorRequestInfo');
         // values for 'tech' portion of mentor request
         $scope.tech = ['web', 'iOS', 'Android', 'VR', 'Hardware', 'Other'];
         this.isRequesting = false;
         this.requestInfo = {};
 
+        // Called in HTML in MentorsTab by General User
         // Unhides Mentor Request elements
         this.startRequest = function(key) {
           this.isRequesting = true;
         };
 
+        // Called in HTML in MentorsTab by General User
         // Uses firebaseService to push new mentor request to firebase
         // Records the current time and pending status in this.requestInfo
         // Calls this.postMentorRequestToSlack();
@@ -244,6 +324,7 @@
           this.clearRequest();
         };
 
+        // Called in HTML in MentorsTab Admin
         // Uses firebaseService to delete request from firebase database
         // Gets Request to delete by accessing an index provided by ng-repeat in the html
         this.deleteRequest = function(key){
@@ -251,6 +332,7 @@
           firebaseService.deleteFromFB(this.mentorRequestList, item);
         };
 
+        // Called in HTML in MentorsTab and in app.js
         // Hides Mentor Request form and clears this.requestInfo
         this.clearRequest = function() {
           this.isRequesting = false;
@@ -337,11 +419,12 @@
 
           this.songRequest = '';
 
+          // Called after posting request to Slack
           // Used to clears user's song request from input element
           this.clearSongRequest = function() {
             this.songRequest = '';
           };
-
+        // Called in HTML in SongsTab
           // Use Slack webhook to send song request info and time to Slack SongRequest channel
           // Clears this.songRequest after posting
           this.postSongRequestToSlack = function() {
@@ -385,29 +468,4 @@
         controllerAs: 'songsTab'
       };
     });
-
-    function getTime() {
-      date = new Date();
-      var time = '';
-
-      var min = '';
-      if(date.getMinutes() < 10){
-        min = '0'+date.getMinutes();
-      }else {
-        min = date.getMinutes();
-      }
-
-      if(date.getHours() === 12){
-        time += '12:'+min+'pm';
-      }else if(date.getHours() > 12){
-        time += (date.getHours()%13+1)+':'+min+'pm';
-      }else {
-        time += date.getHours()+':'+min+'am';
-      }
-      console.log(date.getMinutes());
-
-
-      return time;
-    };
-
 })();

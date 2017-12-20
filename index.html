@@ -16,19 +16,15 @@
     <link href="css/clean-blog.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 
-
     <!-- CSS -->
     <link rel="stylesheet" href="css/styles.css">
 
     <link rel="manifest" href="/manifest.json">
   </head>
 
-  <body ng-app="site" ng-controller="LiveSiteController as site" style="background: url('../background.jpg') no-repeat center top;
+  <body ng-app="site" ng-controller="LoginController as site" style="background: url('../background.jpg') no-repeat center top;
   background-size: cover;">
-    <!-- TAB NAVBAR -->
-    <section>
-      <tab-nav></tab-nav>
-    </section>
+
     <!-- Page Header -->
     <header class="masthead" style="background-image: url('img/main.jpg')">
       <div class="overlay"></div>
@@ -68,13 +64,26 @@
       </div>
     </div>
 
+    <!-- Custom Directives included in html/ folder -->
+    <!-- TAB NAVBAR -->
+    <section>
+      <tab-nav></tab-nav>
+    </section>
     <div>
-      <!-- Custom Directives included in html/login-states folder -->
-      <all-tabs></all-tabs>
-
+      <!-- TABS -->
+      <section class="list-group-item tab-container">
+        <!-- ANNOUNCEMENTS -->
+        <announcement-tab></announcement-tab>
+        <!-- SCHEDULE -->
+        <schedule-tab></schedule-tab>
+        <!-- Map -->
+        <maps-tab></maps-tab>
+        <!-- MENTORS -->
+        <mentors-tab></mentors-tab>
+        <!-- SONGS -->
+        <songs-tab></songs-tab>
+      </section>
     </div>
-
-
 
     <!-- Bootstrap -->
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
@@ -89,10 +98,7 @@
 
     <!-- app.js -->
     <script type="text/javascript" src="js/app.js"></script>
-    <!-- admin-announcements -->
-    <script type="text/javascript" src="js/admin-announcements.js"></script>
-    <!-- admin-schedule -->
-    <script type="text/javascript" src="js/admin-schedule.js"></script>
+
     <!-- Footer -->
     <footer>
       <div class="container">
@@ -129,7 +135,5 @@
         </div>
       </div>
     </footer>
-
   </body>
-
 </html>

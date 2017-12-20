@@ -9,66 +9,6 @@ body {
   margin: auto;
 }
 
-/* NAVIGATION
-.nav.tab-nav {
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-}
-ul {
-  list-style-type: none;
-}
-
-li {
-  display: inline-block;
-}
-a {
-  display: block;
-}
-
-.tab-nav-item.active {
-  background-color:  Pink;
-  color: #ff69b4;
-}
-.tab-nav-item:hover {
-  border-color: Black;
-  background-color: #ccffff;
-  color: Cyan;
-}
-
-.tab-nav-item.list-group-item:first-child {
-  border-top-right-radius: 0px;
-}
-.tab-nav-item.list-group-item:last-child {
-  margin-bottom: -1px;
-  border-top-right-radius: .25rem;
-  border-bottom-right-radius: 0px;
-  border-bottom-left-radius: 0px;
-}
-.tab-nav-item {
-  display: inline-block;
-  width: 12%;
-  text-align: center;
-  border-style: none;
-}
-.tab-nav-item a {
-  font-size: 15px;
-  text-align: center;
-  border-width: medium;
-}
-a {
- text-decoration: none;
- display: block;
- width: 100%;
- height: 100%;
-}
-.tab-nav-link.active {
-  background-color:  Pink;
-  color: #ff69b4;
-  border-color: Gray;
-  border-width: thin;
-}*/
-
 /* TABS */
 .tab-title {
   color: Black;
