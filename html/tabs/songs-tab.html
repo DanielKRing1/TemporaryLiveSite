@@ -8,7 +8,7 @@
     <li class="list-group-item">
       <form ng-submit="">
         <input class="form-control" id="song-request-form" placeholder="Enter a song request" ng-model="songsTab.songRequest">
-        <button class="btn form-control" type="submit" id="song-request-btn" ng-click="postSongRequestToSlack()">Request</button>
+        <button class="btn form-control" type="submit" id="song-request-btn" ng-click="songsTab.postSongRequestToSlack()">Request</button>
       </form>
     </li>
   </ul>

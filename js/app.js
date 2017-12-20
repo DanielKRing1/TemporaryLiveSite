@@ -11,25 +11,29 @@
   	};
   firebase.initializeApp(config);
 
-// FILTER-----------------------------------------------
   var app = angular.module('site', ['firebase', 'site-announcements', 'site-schedule']);
 
+  // SERVICES--
+  // Handles getting, adding, and removing with $firebaseArray
   app.service('firebaseService', function($firebaseArray){
 
-    // Gets Firebase ref from url
+    // Gets Firebase ref from path
+    // Takes in path to specific branch of database
     this.getFBRef = function(path) {
       return firebase.database().ref(path);
     };
 
     // Calls getFBRef(), returns $firebaseArray from ref
+    // Takes in path to specific branch of database
     this.getFBArray = function(path) {
-      var ref = getFBRef(path);
+      var rootRef = firebase.database().ref();
+      var ref = rootRef.child(path);
       return $firebaseArray(ref);
     }
 
-    //
+    // Adds data to $firebaseArray
+    // Takes in $firebaseArray and an array element
     this.addToFB = function(array, data) {
-      //ref
       array.$add(data).then(function(ref) {
         var id = ref.key;
         console.log("added record with id " + id);
@@ -37,13 +41,8 @@
       });
     };
 
-    this.changeInFB = function (array, index, attribute, newValue) {
-      array[index].attribute = newValue;
-      array.$save(index).then(function(ref) {
-        ref.key === array[index].$id;
-      });
-    };
-
+    // Deletes an item from $firebaseArray
+    // Takes in $firebaseArray and an array element
     this.deleteFromFB = function(array, item) {
       array.$remove(item).then(function(ref) {
         if(ref.key === item.$id){ // true
@@ -76,6 +75,9 @@
     return service;
   });
 
+  // CUSTOM FILTERS--
+  // Converts firebase mentorRequestInfo.pending from boolean value
+  // to String 'pending' for true and 'complete' for false
   app.filter('pendingStatus', function() {
     return function(val) {
       if(val === true) {
@@ -85,139 +87,59 @@
     };
   });
 
+  // Reverses an array (to be displayed backwards)
   app.filter('customReverse', function() {
-    /*var newList = {};
-    for(var i = 0; i < items.length; i++){
-      if(i === 2){
-        console.log("check this");
-      }
-      newList[i] = items[items.length-i-1];
-    }
-    return newList;*/
-
     return function(items) {
       return items.slice().reverse();
     };
   });
 
+  // Basic Admin Login Funcitonality
+  // Will include tighter security features with Firebase Auth in future versions
   app.controller('LiveSiteController', function($scope, $firebaseObject){
-
-  this.firebaseMessaging = function() {
-  /*
-    // FIREBASE MESSAGING
-    const messaging = firebase.messaging();
-
-    // PERMISSIONS
-    messaging.requestPermission()
-    .then(function() {
-      console.log('Notification permission granted.');
-      // TODO(developer): Retrieve an Instance ID token for use with FCM.
-      // ...
-    })
-    .catch(function(err) {
-      console.log('Unable to get permission to notify.', err);
-    });
-
-    // GET TOKEN
-    // Get Instance ID token. Initially this makes a network call, once retrieved
-    // subsequent calls to getToken will return from cache.
-    messaging.getToken()
-    .then(function(currentToken) {
-      if (currentToken) {
-        sendTokenToServer(currentToken);
-        updateUIForPushEnabled(currentToken);
-      } else {
-        // Show permission request.
-        console.log('No Instance ID token available. Request permission to generate one.');
-        // Show permission UI.
-        updateUIForPushPermissionRequired();
-        setTokenSentToServer(false);
-      }
-    })
-    .catch(function(err) {
-      console.log('An error occurred while retrieving token. ', err);
-      showToken('Error retrieving Instance ID token. ', err);
-      setTokenSentToServer(false);
-    });
-
-    // Refresh TOKEN
-    // Callback fired if Instance ID token is updated.
-  messaging.onTokenRefresh(function() {
-    messaging.getToken()
-    .then(function(refreshedToken) {
-      console.log('Token refreshed.');
-      // Indicate that the new Instance ID token has not yet been sent to the
-      // app server.
-      setTokenSentToServer(false);
-      // Send Instance ID token to app server.
-      sendTokenToServer(refreshedToken);
-      // ...
-    })
-    .catch(function(err) {
-      console.log('Unable to retrieve refreshed token ', err);
-      showToken('Unable to retrieve refreshed token ', err);
-    });
-  });*/
-  };
-
-  //ADMIN------------------------------------------------
-  this.loggedIn = false;
-  this.showLogin = false;
-  this.loginKey = 'admin';
-  this.enteredKey = '';
-
-  this.openLogin = function(){
-    this.showLogin = true;
-  };
-  this.cancelLogin = function() {
-    this.showLogin = false;
-  };
-
-  this.validateLogin = function() {
-    if(this.loginKey === this.enteredKey) {
-      this.loggedIn = true;
-      console.log("logged in");
-    }
-    this.enteredKey = '';
-  };
-  this.logOut = function() {
     this.loggedIn = false;
-  };
+    this.showLogin = false;
+    this.loginKey = 'admin';
+    this.enteredKey = '';
 
-/*
-  // PUSH NOTIFICATION-------------------------------------
-    $scope.activeNotification = true;
-    console.log($scope.activeNotification);
-
-    this.setActiveNotification = function(val) {
-      $scope.activeNotification = val;
-      console.log($scope.activeNotification);
+    // Shows login elements
+    this.openLogin = function(){
+      this.showLogin = true;
     };
-    */
+    // Hides login elements
+    this.cancelLogin = function() {
+      this.showLogin = false;
+    };
 
+    // Checks entered login against loginKey
+    // If true, logs in user, allows display of admin tabs
+    this.validateLogin = function() {
+      if(this.loginKey === this.enteredKey) {
+        this.loggedIn = true;
+        console.log("logged in");
+      }
+      this.enteredKey = '';
+    };
+    // Logs out user, once again hides admin tabs and hides login elemnts
+    this.logOut = function() {
+      this.loggedIn = false;
+      this.cancelLogin();
+    };
   });
 
-  app.directive('generalUserView', function(){
+  // Custom directive to hold all tab directives
+  app.directive('allTabs', function(){
     return {
       restrict: 'E',
-      templateUrl: 'html/login-states/general-user.html',
+      templateUrl: 'html/login-states/all-tabs.html',
       controller: function() {
 
       },
-      controllerAs: 'general'
-    };
-  });
-  app.directive('adminView', function(){
-    return {
-      restrict: 'E',
-      templateUrl: 'html/login-states/admin.html',
-      controller: function() {
-
-      },
-      controllerAs: 'admin'
+      controllerAs: 'tabs'
     };
   });
 
+  // Custom directive allows for tab selection
   app.directive('tabNav', function(){
     return {
       restrict: 'E',
@@ -225,10 +147,12 @@
       controller: function() {
         this.tab = 1;
 
+        // Changes the selected tab in order to display different tabs when navbar clicked
         this.selectTab = function(setTab) {
           this.tab = setTab;
         };
 
+        // Checks if a tab is selected and returns true if it should be shown
         this.isSelected = function(checkTab) {
           return (this.tab === checkTab);
         };
@@ -237,6 +161,7 @@
     };
   });
 
+  // Custom directive for map tab
   app.directive('mapsTab', function() {
     return {
       restrict: 'E',
@@ -244,6 +169,7 @@
       controller: function() {
         this.selectedMap = 'campus';
 
+        // Changes the selected map
         this.selectMap = function(map) {
           this.selectedMap = map;
         };
@@ -252,92 +178,88 @@
     };
   });
 
+  // Custom directive for mentors tab
   app.directive('mentorsTab', function() {
     return {
       restrict: 'E',
       templateUrl: 'html/tabs/mentors-tab.html',
       controller: function($scope, $firebaseObject, $firebaseArray, $http, firebaseService) {
 
-        /* Database Display */
-        mentorListRef = getFBRef('Mentors/MentorsList');
-        this.mentorList = $firebaseObject(mentorListRef);
-        pendingMentorRequestsRef = getFBRef('Mentors/MentorRequestInfo');
-        this.pendingMentorRequests = $firebaseArray(pendingMentorRequestsRef);
-
+        // MENTORS SECTION
+        // $firebaseArray's used to handle Mentors Tab data
+        this.mentorList = firebaseService.getFBArray('Mentors/MentorsList');
         this.newMentor = '';
 
+        // Uses firebaseService to add new Mentor to Firebase database
+        // Compiles all data into a throw away variable 'a', pushes 'a' to firebase
         this.addMentor = function(){
           if(this.newMentor !== ''){
             var a = {};
 
             a.name = this.newMentor;
             a.available = true;
-            mentorListRef.push(a);
+            firebaseService.addToFB(this.mentorList, a);
             this.newMentor = '';
           }
         };
 
+        // Uses firebaseService to delete Mentor from firebase database
+        // Gets Mentor to delete by accessing an index provided by ng-repeat in the html
         this.deleteMentor = function(mentorKey) {
-          firebase.database().ref('Mentors/MentorsList/'+mentorKey).remove();
+          var item = this.mentorList[mentorKey];
+          firebaseService.deleteFromFB(this.mentorList, item)
         };
 
-        /* Request */
+        // Changes the .available attribute of a mentorList element and saves value to firebase
+        this.setAvailability = function(i, availability) {
+            this.mentorList[i].available = availability;
+            this.mentorList.$save(i).then(function(ref) {
+              //ref.key === this.mentorList[i].$id; // true
+            });
+        };
+
+        // REQUEST SECTION
         this.mentorRequestList = firebaseService.getFBArray('Mentors/MentorRequestInfo');
+        // values for 'tech' portion of mentor request
         $scope.tech = ['web', 'iOS', 'Android', 'VR', 'Hardware', 'Other'];
         this.isRequesting = false;
         this.requestInfo = {};
 
+        // Unhides Mentor Request elements
         this.startRequest = function(key) {
           this.isRequesting = true;
         };
 
+        // Uses firebaseService to push new mentor request to firebase
+        // Records the current time and pending status in this.requestInfo
+        // Calls this.postMentorRequestToSlack();
+        // Clears this.requestInfo after firease push and Slack post
         this.submitRequest = function(key) {
           this.requestInfo.time = Date.now();
           this.requestInfo.pending = true;
 
-          console.log('request function');
           firebaseService.addToFB(this.mentorRequestList, this.requestInfo);
 
           this.postMentorRequestToSlack();
           this.clearRequest();
-          console.log('successfully submitted request');
         };
 
+        // Uses firebaseService to delete request from firebase database
+        // Gets Request to delete by accessing an index provided by ng-repeat in the html
         this.deleteRequest = function(key){
           var item = this.mentorRequestList[this.mentorRequestList.length - 1 -key];
           firebaseService.deleteFromFB(this.mentorRequestList, item);
         };
 
+        // Hides Mentor Request form and clears this.requestInfo
         this.clearRequest = function() {
           this.isRequesting = false;
           this.requestInfo = {};
         };
 
-        this.getPendingStatus = function(key) {
-          firebase.database().ref('Mentors/MentorRequestInfo/'+key);
-        };
-        this.changePendingStatus = function(key) {
-          tempPending = firebaseService.getFBArray('Mentors/MentorRequestInfo');
-          console.log(tempPending);
-          var val = tempPending[key].pending;
-          tempPending[key].pending = !val;
-          tempPending.$save(key).then(function(ref) {
-            ref.key === tempPending[key].$id;
-          });
-          tempPending.$destroy();
-        };
-
+        // Makes use of $http service to makes API call to Slack webhook
+        // Posts this.requestInfo data to Slack
         this.postMentorRequestToSlack = function() {
-          /*
-          $http({
-            method: 'POST',
-            url: '',
-            data: {}
-          });*/
-
-          /* Webhook, no app attached
-          https://hooks.slack.com/services/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
-          */
           $http({
     			  method: 'POST',
     			  url: 'https://hooks.slack.com/services/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',
@@ -372,21 +294,7 @@
                     "value": this.requestInfo.description,
                     "short": false
                   }
-                ],
-                "actions": [
-                {
-                    "name": "recommend",
-                    "text": "Recommend",
-                    "type": "button",
-                    "value": "recommend"
-                },
-                {
-                    "name": "no",
-                    "text": "No",
-                    "type": "button",
-                    "value": "bad"
-                }
-            ]
+                ]
               }]
             }
     			}).then(function successCallback(response) {
@@ -398,42 +306,29 @@
     			    // or server returns response with an error status.
     					console.log("failed to send to slack");
     			  });
-          };
-
-        /*            "channel": "#mentor-request",
-                    "attachments": [{
-                      "fallback": "The attachement isn't loading.",
-                      "title": "Mentor Request",
-                      "color": "#9C1A22",
-                      "pretext": this.requestInfo.name+" Table "+this.requestInfo.table+" Tech: "+this.requestInfo.technology,
-                      "author_name": "Slackbot",
-                      "mrkdwn_in": ["text","fields"],
-                      "text": this.requestInfo.description
-                    }]
-                    */
-
-        this.setAvailability = function(key, availability) {
-          firebase.database().ref('Mentors/MentorsList/'+key+'/available').set(availability);
         };
       },
       controllerAs: 'mentorsTab'
     };
   });
 
+  // Custom directive for Hardware Tab, does not have a controller
   app.directive('hardwareTab', function() {
-      return {
-        restrict: 'E',
-        templateUrl: 'html/tabs/hardware-tab.html'
-      };
-    });
+    return {
+      restrict: 'E',
+      templateUrl: 'html/tabs/hardware-tab.html'
+    };
+  });
 
+  // Custom directive for Submit Tab, does not have a controller
   app.directive('submitTab', function() {
-      return {
-        restrict: 'E',
-        templateUrl: 'html/tabs/submit-tab.html'
-      };
-    });
+    return {
+      restrict: 'E',
+      templateUrl: 'html/tabs/submit-tab.html'
+    };
+  });
 
+  // Custome directive for Songs Tab
   app.directive('songsTab', function() {
       return {
         restrict: 'E',
@@ -441,16 +336,19 @@
         controller: function($http) {
 
           this.songRequest = '';
+
+          // Used to clears user's song request from input element
           this.clearSongRequest = function() {
             this.songRequest = '';
           };
 
+          // Use Slack webhook to send song request info and time to Slack SongRequest channel
+          // Clears this.songRequest after posting
           this.postSongRequestToSlack = function() {
-            console.log('1');
             if(this.songRequest !== ''){
               $http({
                 method: 'POST',
-                url: 'https://hooks.slack.com/services/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',
+                url: 'https://hooks.slack.com/services/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',
                 headers: {
                   'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -458,12 +356,12 @@
                   "attachments": [{
                     "fallback": "The attachement isn't loading.",
                     "callback_id": "mentor_request_app",
-                    "title": "****Song Request @"+this.requestInfo.time+'****',
+                    "title": "****Song Request @"+Date.now()+'****',
                     "color": "#9C1A22",
                     "mrkdwn_in": ["text","fields"],
                     "fields": [
                       {
-                        "title": "Song",
+                        "title": "Song Name",
                         "value": this.songRequest,
                         "short": true
                       }
@@ -480,7 +378,6 @@
                   console.log("failed to send to slack");
                 });
               };
-              console.log(2);
             this.clearSongRequest();
           };
 
@@ -488,13 +385,6 @@
         controllerAs: 'songsTab'
       };
     });
-
-    function getFBRef(child){
-      console.log("into");
-      const rootRef = firebase.database().ref();
-      const ref = rootRef.child(child);
-      return ref;
-    }
 
     function getTime() {
       date = new Date();
@@ -521,19 +411,3 @@
     };
 
 })();
-
-/*         this.checkAvailability = function(key) {
-          var availability;
-
-          var val = firebase.database().ref('Mentors/MentorsList/'+key+'/available');
-          val.on('value', function(snapshot) {
-            availability = snapshot.val();
-            console.log(1);
-          });
-          val.on('child_changed', function(snapshot) {
-            availability = availability | snap.val();
-            console.log(2);
-          });
-          return availability;
-        };
-        */

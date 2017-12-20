@@ -142,9 +142,9 @@ a {
   margin: 10px;
 }
 
-/* General User */
-#mentor-row {
-  height: 500px;
+.mentor-row {
+  overflow: scroll;
+  height: 350px;
 }
 #pending-request-group {
   overflow-y: auto;

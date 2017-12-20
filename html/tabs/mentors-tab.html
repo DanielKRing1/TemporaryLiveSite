@@ -29,9 +29,9 @@
     </ul>
 
     <!-- ADMIN PENDING REQUESTS -->
-    <div class="col-sm-6 list-group-item">
+    <div class="col-sm-6 list-group-item mentor-row">
       <h4>All Requests</h4>
-      <ul ng-repeat="(key, request) in mentorsTab.pendingMentorRequests | customReverse">
+      <ul ng-repeat="(key, request) in mentorsTab.mentorRequestList | customReverse">
         <li class="row">
           <h5 class="col-sm-4">{{request.name | limitTo: 15}}</h5>
           <h5 class="col-sm-3">{{request.time | date:'EEEE h:mm a'}}</h5>
@@ -48,9 +48,9 @@
   <div ng-hide="site.loggedIn">
     <div class="row">
     <!-- PENDING REQUESTS -->
-    <div class="col-sm-6 list-group-item">
+    <div class="col-sm-6 list-group-item mentor-row">
       <h4>All Requests</h4>
-      <ul ng-repeat="(key, request) in mentorsTab.pendingMentorRequests | customReverse">
+      <ul ng-repeat="(key, request) in mentorsTab.mentorRequestList | customReverse">
         <li class="row">
           <h5 class="col-sm-4">{{request.name | limitTo: 15}}</h5>
           <h5 class="col-sm-3">{{request.time | date:'EEEE h:mm a'}}</h5>

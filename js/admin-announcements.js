@@ -27,7 +27,6 @@
         };
 
         this.deleteAnnouncement = function(key){
-
           var item = this.announcementList[this.announcementList.length - 1 -key];
           firebaseService.deleteFromFB(this.announcementList, item);
         };
